@@ -76,7 +76,8 @@ def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_ind
             nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
             st.session_state.carte_pescate.append(nome_carta)
             st.session_state.carte[indice] = (nome_carta, orientamento)
-            st.rerun()    else:
+            st.rerun()    
+        else:
         etichetta_bottone = f"{indice + 1}. {etichetta}"
         tipo = "primary" if indice == prossimo_indice else "secondary"
         if st.button(etichetta_bottone, key=f"pesca_{chiave_disposizione}_{indice}", use_container_width=True, type=tipo):
