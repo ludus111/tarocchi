@@ -60,7 +60,11 @@ def pesca_carta_singola(carte_gia_pescate):
 def get_configurazione_layout(nome_disposizione):
     larghezza_carta, altezza_carta, figsize, extra_overlay = 0.14, 0.28, (11, 9), None
 
-    if nome_disposizione in ("singola", "si_no", "tre_carte"):
+    if nome_disposizione == "singola":
+        larghezza_carta, altezza_carta = 0.55, 0.85
+        posizioni = {0: ((1 - larghezza_carta) / 2, (1 - altezza_carta) / 2)}
+        figsize = (5, 7)
+    elif nome_disposizione in ("si_no", "tre_carte"):
         n = len(disposizioni[nome_disposizione])
         spazio = 0.04
         larghezza_totale = n * larghezza_carta + (n - 1) * spazio
