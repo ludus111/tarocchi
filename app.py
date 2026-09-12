@@ -155,7 +155,7 @@ def render_stesa(nome_disposizione, carte):
     etichette = disposizioni[nome_disposizione]
     non_pescate = [i for i in range(len(etichette)) if i not in carte]
     prossimo_indice = non_pescate[0] if non_pescate else None
-    
+
     if prossimo_indice is not None:
         st.caption(f"👉 Prossima da pescare, nell'ordine tradizionale: **{prossimo_indice + 1}. {etichette[prossimo_indice]}** (evidenziata sotto — ma puoi cliccarne un'altra se preferisci)")
 
@@ -172,23 +172,52 @@ def render_stesa(nome_disposizione, carte):
     elif nome_disposizione == "ruota_anno":
         render_ruota_anno(carte, prossimo_indice)
 
+# --- Visualizzazione ingrandita con navigazione avanti/indietro ---
+
+@st.dialog("Carta")
+def mostra_zoom(nome_disposizione, carte):
+    etichette = disposizioni[nome_disposizione]
+    indici_pescati = [i for i in range(len(etichette)) if i in carte]
+    if st.session_state.indice_zoom not in indici_pescati:
+        st.write("Carta non disponibile.")
+        return
+    posizione_corrente = indici_pescati.index(st.session_state.indice_zoom)
+    indice = indici_pescati[posizione_corrente]
+
+    nome_carta, orientamento = carte[indice]
+    img = carica_immagine_carta(nome_carta, orientamento)
+    if img is not None:
+        st.image(img, use_container_width=True)
+    st.caption(f"{indice + 1}. {etichette[indice]}: {nome_carta} ({orientamento})")
+
+    colonna_prec, colonna_succ = st.columns(2)
+    with colonna_prec:
+        if posizione_corrente > 0:
+            if st.button("◀ Precedente", use_container_width=True, key="zoom_precedente"):
+                st.session_state.indice_zoom = indici_pescati[posizione_corrente - 1]
+    with colonna_succ:
+        if posizione_corrente < len(indici_pescati) - 1:
+            if st.button("Successiva ▶", use_container_width=True, key="zoom_successiva"):
+                st.session_state.indice_zoom = indici_pescati[posizione_corrente + 1]
+
 def mostra_galleria(nome_disposizione, carte):
     etichette = disposizioni[nome_disposizione]
     indici_pescati = [i for i in range(len(etichette)) if i in carte]
     if not indici_pescati:
         return
-    immagini = []
-    didascalie = []
-    for i in indici_pescati:
-        nome_carta, orientamento = carte[i]
-        img = carica_immagine_carta(nome_carta, orientamento)
-        if img is not None:
-            immagini.append(img)
-            didascalie.append(f"{i + 1}. {etichette[i]}: {nome_carta} ({orientamento})")
-    if immagini:
-        st.divider()
-        st.subheader("Sfoglia le carte pescate (in ordine di lettura)")
-        st.image(immagini, caption=didascalie, width=220)
+    st.divider()
+    st.subheader("Sfoglia le carte pescate (in ordine di lettura)")
+    colonne = st.columns(min(len(indici_pescati), 4))
+    for posizione, indice in enumerate(indici_pescati):
+        colonna = colonne[posizione % len(colonne)]
+        with colonna:
+            nome_carta, orientamento = carte[indice]
+            img = carica_immagine_carta(nome_carta, orientamento)
+            if img is not None:
+                st.image(img, caption=f"{indice + 1}. {etichette[indice]}", use_container_width=True)
+            if st.button("🔍 Ingrandisci", key=f"zoom_{nome_disposizione}_{indice}", use_container_width=True):
+                st.session_state.indice_zoom = indice
+                mostra_zoom(nome_disposizione, carte)
 
 # --- Stato persistente ---
 
@@ -198,6 +227,8 @@ if "carte_pescate" not in st.session_state:
     st.session_state.carte_pescate = []
 if "disposizione_corrente" not in st.session_state:
     st.session_state.disposizione_corrente = None
+if "indice_zoom" not in st.session_state:
+    st.session_state.indice_zoom = None
 
 st.title("🔮 Tarocchi")
 
