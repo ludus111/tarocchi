@@ -100,7 +100,7 @@ def get_configurazione_layout(nome_disposizione):
 def disegna_stesa(nome_disposizione, carte):
     etichette = disposizioni[nome_disposizione]
     posizioni_grafiche, larghezza_carta, altezza_carta, figsize, extra_overlay = get_configurazione_layout(nome_disposizione)
-    fig = plt.figure(figsize=figsize, dpi=700)
+    fig = plt.figure(figsize=figsize, dpi=500)
     for indice, etichetta in enumerate(etichette):
         if indice not in posizioni_grafiche:
             continue
