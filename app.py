@@ -55,8 +55,6 @@ def pesca_carta_singola(carte_gia_pescate):
     orientamento = random.choice(["dritta", "rovesciata"])
     return carta, orientamento
 
-# --- Visualizzazione di una singola posizione ---
-
 def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_indice):
     if indice in carte:
         nome_carta, orientamento = carte[indice]
@@ -76,24 +74,7 @@ def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_ind
             nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
             st.session_state.carte_pescate.append(nome_carta)
             st.session_state.carte[indice] = (nome_carta, orientamento)
-            st.rerun()    
-        else:
-        etichetta_bottone = f"{indice + 1}. {etichetta}"
-        tipo = "primary" if indice == prossimo_indice else "secondary"
-        if st.button(etichetta_bottone, key=f"pesca_{chiave_disposizione}_{indice}", use_container_width=True, type=tipo):
-            nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
-            st.session_state.carte_pescate.append(nome_carta)
-            st.session_state.carte[indice] = (nome_carta, orientamento)
-            st.rerun()    else:
-        etichetta_bottone = f"{indice + 1}. {etichetta}"
-        tipo = "primary" if indice == prossimo_indice else "secondary"
-        if st.button(etichetta_bottone, key=f"pesca_{chiave_disposizione}_{indice}", use_container_width=True, type=tipo):
-            nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
-            st.session_state.carte_pescate.append(nome_carta)
-            st.session_state.carte[indice] = (nome_carta, orientamento)
             st.rerun()
-
-# --- Layout per ogni disposizione ---
 
 def render_riga(nome_disposizione, carte, prossimo_indice):
     etichette = disposizioni[nome_disposizione]
@@ -190,8 +171,6 @@ def render_stesa(nome_disposizione, carte):
     elif nome_disposizione == "ruota_anno":
         render_ruota_anno(carte, prossimo_indice)
 
-# --- Visualizzazione ingrandita con navigazione avanti/indietro ---
-
 @st.dialog("Carta")
 def mostra_zoom(nome_disposizione, carte):
     etichette = disposizioni[nome_disposizione]
@@ -217,8 +196,6 @@ def mostra_zoom(nome_disposizione, carte):
         if posizione_corrente < len(indici_pescati) - 1:
             if st.button("Successiva ▶", use_container_width=True, key="zoom_successiva"):
                 st.session_state.indice_zoom = indici_pescati[posizione_corrente + 1]
-
-# --- Stato persistente ---
 
 if "carte" not in st.session_state:
     st.session_state.carte = {}
@@ -247,6 +224,6 @@ if st.session_state.disposizione_corrente:
     etichette = disposizioni[nome_disposizione]
 
     render_stesa(nome_disposizione, st.session_state.carte)
-    
+
     if len(st.session_state.carte) >= len(etichette):
         st.success("Stesa completa!")
