@@ -184,7 +184,7 @@ def render_stesa(nome_disposizione, carte):
 
     if prossimo_indice is not None:
         st.caption(f"👉 Prossima da pescare, nell'ordine tradizionale: **{prossimo_indice + 1}. {etichette[prossimo_indice]}** (evidenziata sotto — ma puoi cliccarne un'altra se preferisci)")
-    
+
     if nome_disposizione in ("singola", "si_no", "tre_carte"):
         render_riga(nome_disposizione, carte, prossimo_indice)
     elif nome_disposizione == "cinque_carte":
@@ -215,8 +215,8 @@ def mostra_zoom(nome_disposizione, carte):
     st.caption(f"{indice + 1}. {etichette[indice]}: {nome_carta} ({orientamento})")
     if nome_carta in link_interpretazione:
         st.link_button("📖 Leggi il significato", link_interpretazione[nome_carta])
-    
-     colonna_prec, colonna_succ = st.columns(2)
+
+    colonna_prec, colonna_succ = st.columns(2)
     with colonna_prec:
         if posizione_corrente > 0:
             if st.button("◀ Precedente", use_container_width=True, key="zoom_precedente", shortcut="Left"):
