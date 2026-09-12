@@ -62,11 +62,21 @@ def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_ind
         nome_carta, orientamento = carte[indice]
         img = carica_immagine_carta(nome_carta, orientamento)
         if img is not None:
-            st.image(img, caption=etichetta, width=110)
+            st.image(img, caption=etichetta, use_container_width=True)
+            if st.button("🔍 Ingrandisci", key=f"zoom_{chiave_disposizione}_{indice}", use_container_width=True):
+                st.session_state.indice_zoom = indice
+                mostra_zoom(chiave_disposizione, carte)
         else:
             st.write(f"**{etichetta}**")
             st.write("Immagine non ancora disponibile")
     else:
+        etichetta_bottone = f"{indice + 1}. {etichetta}"
+        tipo = "primary" if indice == prossimo_indice else "secondary"
+        if st.button(etichetta_bottone, key=f"pesca_{chiave_disposizione}_{indice}", use_container_width=True, type=tipo):
+            nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
+            st.session_state.carte_pescate.append(nome_carta)
+            st.session_state.carte[indice] = (nome_carta, orientamento)
+            st.rerun()    else:
         etichetta_bottone = f"{indice + 1}. {etichetta}"
         tipo = "primary" if indice == prossimo_indice else "secondary"
         if st.button(etichetta_bottone, key=f"pesca_{chiave_disposizione}_{indice}", use_container_width=True, type=tipo):
@@ -200,25 +210,6 @@ def mostra_zoom(nome_disposizione, carte):
             if st.button("Successiva ▶", use_container_width=True, key="zoom_successiva"):
                 st.session_state.indice_zoom = indici_pescati[posizione_corrente + 1]
 
-def mostra_galleria(nome_disposizione, carte):
-    etichette = disposizioni[nome_disposizione]
-    indici_pescati = [i for i in range(len(etichette)) if i in carte]
-    if not indici_pescati:
-        return
-    st.divider()
-    st.subheader("Sfoglia le carte pescate (in ordine di lettura)")
-    colonne = st.columns(min(len(indici_pescati), 4))
-    for posizione, indice in enumerate(indici_pescati):
-        colonna = colonne[posizione % len(colonne)]
-        with colonna:
-            nome_carta, orientamento = carte[indice]
-            img = carica_immagine_carta(nome_carta, orientamento)
-            if img is not None:
-                st.image(img, caption=f"{indice + 1}. {etichette[indice]}", use_container_width=True)
-            if st.button("🔍 Ingrandisci", key=f"zoom_{nome_disposizione}_{indice}", use_container_width=True):
-                st.session_state.indice_zoom = indice
-                mostra_zoom(nome_disposizione, carte)
-
 # --- Stato persistente ---
 
 if "carte" not in st.session_state:
@@ -248,7 +239,6 @@ if st.session_state.disposizione_corrente:
     etichette = disposizioni[nome_disposizione]
 
     render_stesa(nome_disposizione, st.session_state.carte)
-    mostra_galleria(nome_disposizione, st.session_state.carte)
-
+    
     if len(st.session_state.carte) >= len(etichette):
         st.success("Stesa completa!")
