@@ -65,7 +65,7 @@ def get_configurazione_layout(nome_disposizione):
         posizioni = {0: ((1 - larghezza_carta) / 2, (1 - altezza_carta) / 2)}
         figsize = (5, 7)
     elif nome_disposizione in ("si_no", "tre_carte"):
-        larghezza_carta, altezza_carta = 0.22, 0.42
+        larghezza_carta, altezza_carta = 0.26, 0.50
         n = len(disposizioni[nome_disposizione])
         spazio = 0.04
         larghezza_totale = n * larghezza_carta + (n - 1) * spazio
