@@ -55,9 +55,9 @@ def pesca_carta_singola(carte_gia_pescate):
     orientamento = random.choice(["dritta", "rovesciata"])
     return carta, orientamento
 
-# --- Visualizzazione di una singola posizione (immagine nativa, cliccabile per ingrandire) ---
+# --- Visualizzazione di una singola posizione ---
 
-def mostra_posizione(etichetta, indice, carte):
+def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_indice):
     if indice in carte:
         nome_carta, orientamento = carte[indice]
         img = carica_immagine_carta(nome_carta, orientamento)
@@ -67,102 +67,110 @@ def mostra_posizione(etichetta, indice, carte):
             st.write(f"**{etichetta}**")
             st.write("Immagine non ancora disponibile")
     else:
-        st.markdown(
-            f"<div style='background:#eee;border-radius:10px;min-height:160px;"
-            f"display:flex;align-items:center;justify-content:center;color:#888;"
-            f"text-align:center;padding:10px;font-size:13px;'>{etichetta}</div>",
-            unsafe_allow_html=True,
-        )
+        etichetta_bottone = f"{indice + 1}. {etichetta}"
+        tipo = "primary" if indice == prossimo_indice else "secondary"
+        if st.button(etichetta_bottone, key=f"pesca_{chiave_disposizione}_{indice}", use_container_width=True, type=tipo):
+            nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
+            st.session_state.carte_pescate.append(nome_carta)
+            st.session_state.carte[indice] = (nome_carta, orientamento)
+            st.rerun()
 
 # --- Layout per ogni disposizione ---
 
-def render_riga(nome_disposizione, carte):
+def render_riga(nome_disposizione, carte, prossimo_indice):
     etichette = disposizioni[nome_disposizione]
     colonne = st.columns(len(etichette))
     for indice, (colonna, etichetta) in enumerate(zip(colonne, etichette)):
         with colonna:
-            mostra_posizione(etichetta, indice, carte)
+            mostra_posizione(etichetta, indice, carte, nome_disposizione, prossimo_indice)
 
-def render_cinque_carte(carte):
+def render_cinque_carte(carte, prossimo_indice):
     etichette = disposizioni["cinque_carte"]
     sopra = st.columns(3)
     with sopra[1]:
-        mostra_posizione(etichette[1], 1, carte)
+        mostra_posizione(etichette[1], 1, carte, "cinque_carte", prossimo_indice)
     centro = st.columns(3)
     with centro[0]:
-        mostra_posizione(etichette[2], 2, carte)
+        mostra_posizione(etichette[2], 2, carte, "cinque_carte", prossimo_indice)
     with centro[1]:
-        mostra_posizione(etichette[0], 0, carte)
+        mostra_posizione(etichette[0], 0, carte, "cinque_carte", prossimo_indice)
     with centro[2]:
-        mostra_posizione(etichette[3], 3, carte)
+        mostra_posizione(etichette[3], 3, carte, "cinque_carte", prossimo_indice)
     sotto = st.columns(3)
     with sotto[1]:
-        mostra_posizione(etichette[4], 4, carte)
+        mostra_posizione(etichette[4], 4, carte, "cinque_carte", prossimo_indice)
 
-def render_ferro_di_cavallo(carte):
+def render_ferro_di_cavallo(carte, prossimo_indice):
     etichette = disposizioni["ferro_di_cavallo"]
     offset_px = [70, 40, 15, 0, 15, 40, 70]
     colonne = st.columns(7)
     for indice, (colonna, etichetta) in enumerate(zip(colonne, etichette)):
         with colonna:
             st.markdown(f"<div style='height:{offset_px[indice]}px'></div>", unsafe_allow_html=True)
-            mostra_posizione(etichetta, indice, carte)
+            mostra_posizione(etichetta, indice, carte, "ferro_di_cavallo", prossimo_indice)
 
-def render_relazionale(carte):
+def render_relazionale(carte, prossimo_indice):
     etichette = disposizioni["relazionale"]
     riga1 = st.columns(3)
     for colonna, indice in zip(riga1, [0, 2, 1]):
         with colonna:
-            mostra_posizione(etichette[indice], indice, carte)
+            mostra_posizione(etichette[indice], indice, carte, "relazionale", prossimo_indice)
     riga2 = st.columns(3)
     for colonna, indice in zip(riga2, [3, 5, 4]):
         with colonna:
-            mostra_posizione(etichette[indice], indice, carte)
+            mostra_posizione(etichette[indice], indice, carte, "relazionale", prossimo_indice)
 
-def render_croce_celtica(carte):
+def render_croce_celtica(carte, prossimo_indice):
     etichette = disposizioni["croce_celtica"]
     area_croce, area_bastone = st.columns([3, 1])
     with area_croce:
         sopra = st.columns(3)
         with sopra[1]:
-            mostra_posizione(etichette[4], 4, carte)
+            mostra_posizione(etichette[4], 4, carte, "croce_celtica", prossimo_indice)
         centro = st.columns(3)
         with centro[0]:
-            mostra_posizione(etichette[3], 3, carte)
+            mostra_posizione(etichette[3], 3, carte, "croce_celtica", prossimo_indice)
         with centro[1]:
-            mostra_posizione(etichette[0], 0, carte)
-            mostra_posizione(etichette[1], 1, carte)
+            mostra_posizione(etichette[0], 0, carte, "croce_celtica", prossimo_indice)
+            mostra_posizione(etichette[1], 1, carte, "croce_celtica", prossimo_indice)
         with centro[2]:
-            mostra_posizione(etichette[5], 5, carte)
+            mostra_posizione(etichette[5], 5, carte, "croce_celtica", prossimo_indice)
         sotto = st.columns(3)
         with sotto[1]:
-            mostra_posizione(etichette[2], 2, carte)
+            mostra_posizione(etichette[2], 2, carte, "croce_celtica", prossimo_indice)
     with area_bastone:
         for indice in [9, 8, 7, 6]:
-            mostra_posizione(etichette[indice], indice, carte)
+            mostra_posizione(etichette[indice], indice, carte, "croce_celtica", prossimo_indice)
 
-def render_ruota_anno(carte):
+def render_ruota_anno(carte, prossimo_indice):
     etichette = disposizioni["ruota_anno"]
     for inizio_riga in range(0, 12, 4):
         colonne = st.columns(4)
         for offset, colonna in enumerate(colonne):
             indice = inizio_riga + offset
             with colonna:
-                mostra_posizione(etichette[indice], indice, carte)
+                mostra_posizione(etichette[indice], indice, carte, "ruota_anno", prossimo_indice)
 
 def render_stesa(nome_disposizione, carte):
+    etichette = disposizioni[nome_disposizione]
+    non_pescate = [i for i in range(len(etichette)) if i not in carte]
+    prossimo_indice = non_pescate[0] if non_pescate else None
+
+    if prossimo_indice is not None:
+        st.caption(f"👉 Prossima da pescare, nell'ordine tradizionale: **{prossimo_indice + 1}. {etichette[prossimo_indice]}** (evidenziata sotto — ma puoi cliccarne un'altra se preferisci)")
+
     if nome_disposizione in ("singola", "si_no", "tre_carte"):
-        render_riga(nome_disposizione, carte)
+        render_riga(nome_disposizione, carte, prossimo_indice)
     elif nome_disposizione == "cinque_carte":
-        render_cinque_carte(carte)
+        render_cinque_carte(carte, prossimo_indice)
     elif nome_disposizione == "ferro_di_cavallo":
-        render_ferro_di_cavallo(carte)
+        render_ferro_di_cavallo(carte, prossimo_indice)
     elif nome_disposizione == "relazionale":
-        render_relazionale(carte)
+        render_relazionale(carte, prossimo_indice)
     elif nome_disposizione == "croce_celtica":
-        render_croce_celtica(carte)
+        render_croce_celtica(carte, prossimo_indice)
     elif nome_disposizione == "ruota_anno":
-        render_ruota_anno(carte)
+        render_ruota_anno(carte, prossimo_indice)
 
 # --- Stato persistente ---
 
@@ -189,15 +197,8 @@ if st.button("Inizia stesa"):
 if st.session_state.disposizione_corrente:
     nome_disposizione = st.session_state.disposizione_corrente
     etichette = disposizioni[nome_disposizione]
-    completa = len(st.session_state.carte) >= len(etichette)
-
-    if st.button("Pesca la prossima carta", disabled=completa):
-        indice_corrente = len(st.session_state.carte)
-        nome_carta, orientamento = pesca_carta_singola(st.session_state.carte_pescate)
-        st.session_state.carte_pescate.append(nome_carta)
-        st.session_state.carte[indice_corrente] = (nome_carta, orientamento)
 
     render_stesa(nome_disposizione, st.session_state.carte)
 
-    if completa:
+    if len(st.session_state.carte) >= len(etichette):
         st.success("Stesa completa!")
