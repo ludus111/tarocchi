@@ -155,7 +155,7 @@ def render_stesa(nome_disposizione, carte):
     etichette = disposizioni[nome_disposizione]
     non_pescate = [i for i in range(len(etichette)) if i not in carte]
     prossimo_indice = non_pescate[0] if non_pescate else None
-
+    
     if prossimo_indice is not None:
         st.caption(f"👉 Prossima da pescare, nell'ordine tradizionale: **{prossimo_indice + 1}. {etichette[prossimo_indice]}** (evidenziata sotto — ma puoi cliccarne un'altra se preferisci)")
 
@@ -171,6 +171,24 @@ def render_stesa(nome_disposizione, carte):
         render_croce_celtica(carte, prossimo_indice)
     elif nome_disposizione == "ruota_anno":
         render_ruota_anno(carte, prossimo_indice)
+
+def mostra_galleria(nome_disposizione, carte):
+    etichette = disposizioni[nome_disposizione]
+    indici_pescati = [i for i in range(len(etichette)) if i in carte]
+    if not indici_pescati:
+        return
+    immagini = []
+    didascalie = []
+    for i in indici_pescati:
+        nome_carta, orientamento = carte[i]
+        img = carica_immagine_carta(nome_carta, orientamento)
+        if img is not None:
+            immagini.append(img)
+            didascalie.append(f"{i + 1}. {etichette[i]}: {nome_carta} ({orientamento})")
+    if immagini:
+        st.divider()
+        st.subheader("Sfoglia le carte pescate (in ordine di lettura)")
+        st.image(immagini, caption=didascalie, width=220)
 
 # --- Stato persistente ---
 
@@ -199,6 +217,7 @@ if st.session_state.disposizione_corrente:
     etichette = disposizioni[nome_disposizione]
 
     render_stesa(nome_disposizione, st.session_state.carte)
+    mostra_galleria(nome_disposizione, st.session_state.carte)
 
     if len(st.session_state.carte) >= len(etichette):
         st.success("Stesa completa!")
