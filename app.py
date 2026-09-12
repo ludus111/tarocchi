@@ -35,6 +35,31 @@ etichette_disposizioni = {
     "ruota_anno": "Ruota dell'anno (12 carte)",
 }
 
+link_interpretazione = {
+    "Il Matto": "https://latuastellaguida.com/tarocchi/il-matto/",
+    "Il Mago": "https://latuastellaguida.com/tarocchi/il-mago/",
+    "La Papessa": "https://latuastellaguida.com/tarocchi/la-papessa/",
+    "L'Imperatrice": "https://latuastellaguida.com/tarocchi/l-imperatrice/",
+    "L'Imperatore": "https://latuastellaguida.com/tarocchi/imperatore/",
+    "Il Papa": "https://latuastellaguida.com/tarocchi/il-papa/",
+    "Gli Amanti": "https://latuastellaguida.com/tarocchi/gli-amanti/",
+    "Il Carro": "https://latuastellaguida.com/tarocchi/il-carro/",
+    "La Forza": "https://latuastellaguida.com/tarocchi/la-forza/",
+    "L'Eremita": "https://latuastellaguida.com/tarocchi/eremita/",
+    "La Ruota della Fortuna": "https://latuastellaguida.com/tarocchi/la-ruota-della-fortuna/",
+    "La Giustizia": "https://latuastellaguida.com/tarocchi/la-giustizia/",
+    "L'Appeso": "https://latuastellaguida.com/tarocchi/appeso/",
+    "La Morte": "https://latuastellaguida.com/tarocchi/la-morte/",
+    "La Temperanza": "https://latuastellaguida.com/tarocchi/temperanza/",
+    "Il Diavolo": "https://latuastellaguida.com/tarocchi/il-diavolo/",
+    "La Torre": "https://latuastellaguida.com/tarocchi/la-torre/",
+    "La Stella": "https://latuastellaguida.com/tarocchi/le-stelle/",
+    "La Luna": "https://latuastellaguida.com/tarocchi/la-luna/",
+    "Il Sole": "https://latuastellaguida.com/tarocchi/il-sole/",
+    "Il Giudizio": "https://latuastellaguida.com/tarocchi/il-giudizio/",
+    "Il Mondo": "https://latuastellaguida.com/tarocchi/il-mondo/",
+}
+
 def percorso_immagine(nome_carta):
     indice = arcani_maggiori.index(nome_carta)
     nome_file = f"immagini/{indice:02d}.jpg"
@@ -64,6 +89,8 @@ def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_ind
             if st.button("🔍 Ingrandisci", key=f"zoom_{chiave_disposizione}_{indice}", use_container_width=True):
                 st.session_state.indice_zoom = indice
                 mostra_zoom(chiave_disposizione, carte)
+            if nome_carta in link_interpretazione:
+                st.link_button("📖 Significato", link_interpretazione[nome_carta])
         else:
             st.write(f"**{etichetta}**")
             st.write("Immagine non ancora disponibile")
@@ -157,7 +184,7 @@ def render_stesa(nome_disposizione, carte):
 
     if prossimo_indice is not None:
         st.caption(f"👉 Prossima da pescare, nell'ordine tradizionale: **{prossimo_indice + 1}. {etichette[prossimo_indice]}** (evidenziata sotto — ma puoi cliccarne un'altra se preferisci)")
-
+    
     if nome_disposizione in ("singola", "si_no", "tre_carte"):
         render_riga(nome_disposizione, carte, prossimo_indice)
     elif nome_disposizione == "cinque_carte":
@@ -186,7 +213,9 @@ def mostra_zoom(nome_disposizione, carte):
     if img is not None:
         st.image(img, use_container_width=True)
     st.caption(f"{indice + 1}. {etichette[indice]}: {nome_carta} ({orientamento})")
-
+    if nome_carta in link_interpretazione:
+        st.link_button("📖 Leggi il significato", link_interpretazione[nome_carta])
+    
     colonna_prec, colonna_succ = st.columns(2)
     with colonna_prec:
         if posizione_corrente > 0:
