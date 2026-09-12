@@ -80,15 +80,15 @@ def get_configurazione_layout(nome_disposizione):
                      3: (0.08, 0.15), 4: (0.68, 0.15), 5: (0.38, 0.15)}
         figsize = (11, 9)
     elif nome_disposizione == "ruota_anno":
-        larghezza_carta, altezza_carta = 0.10, 0.20
-        centro_x, centro_y, raggio = 0.5, 0.5, 0.33
+        larghezza_carta, altezza_carta = 0.075, 0.15
+        centro_x, centro_y, raggio = 0.5, 0.5, 0.37
         n = len(disposizioni[nome_disposizione])
         posizioni = {}
         for i in range(n):
             angolo = math.pi / 2 - i * (2 * math.pi / n)
             posizioni[i] = (centro_x + raggio * math.cos(angolo) - larghezza_carta / 2,
                              centro_y + raggio * math.sin(angolo) - altezza_carta / 2)
-        figsize = (11, 11)
+        figsize = (12, 12)
     elif nome_disposizione == "croce_celtica":
         posizioni = {0: (0.32, 0.36), 2: (0.32, 0.04), 3: (0.12, 0.36), 4: (0.32, 0.68),
                      5: (0.52, 0.36), 6: (0.80, 0.04), 7: (0.80, 0.28), 8: (0.80, 0.52), 9: (0.80, 0.76)}
