@@ -62,7 +62,7 @@ def mostra_posizione(etichetta, indice, carte, chiave_disposizione, prossimo_ind
         nome_carta, orientamento = carte[indice]
         img = carica_immagine_carta(nome_carta, orientamento)
         if img is not None:
-            st.image(img, caption=etichetta, use_container_width=True)
+            st.image(img, caption=etichetta, width=110)
         else:
             st.write(f"**{etichetta}**")
             st.write("Immagine non ancora disponibile")
