@@ -1,11 +1,9 @@
 import streamlit as st
 import random
 import os
-import math
 from PIL import Image
-import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Tarocchi", layout="centered")
+st.set_page_config(page_title="Tarocchi", page_icon="🔮", layout="centered")
 
 arcani_maggiori = [
     "Il Matto", "Il Mago", "La Papessa", "L'Imperatrice", "L'Imperatore",
@@ -57,87 +55,117 @@ def pesca_carta_singola(carte_gia_pescate):
     orientamento = random.choice(["dritta", "rovesciata"])
     return carta, orientamento
 
-def get_configurazione_layout(nome_disposizione):
-    larghezza_carta, altezza_carta, figsize, extra_overlay = 0.14, 0.28, (11, 9), None
+# --- Visualizzazione di una singola posizione (immagine nativa, cliccabile per ingrandire) ---
 
-    if nome_disposizione == "singola":
-        larghezza_carta, altezza_carta = 0.55, 0.85
-        posizioni = {0: ((1 - larghezza_carta) / 2, (1 - altezza_carta) / 2)}
-        figsize = (5, 7)
-    elif nome_disposizione in ("si_no", "tre_carte"):
-        larghezza_carta, altezza_carta = 0.30, 0.58
-        n = len(disposizioni[nome_disposizione])
-        spazio = 0.04
-        larghezza_totale = n * larghezza_carta + (n - 1) * spazio
-        x_iniziale = (1 - larghezza_totale) / 2
-        posizioni = {i: (x_iniziale + i * (larghezza_carta + spazio), 0.36) for i in range(n)}
-        figsize = (max(4, 2.5 * n), 6)
-    elif nome_disposizione == "cinque_carte":
-        posizioni = {0: (0.43, 0.36), 1: (0.43, 0.68), 2: (0.16, 0.36), 3: (0.70, 0.36), 4: (0.43, 0.04)}
-        figsize = (10, 9)
-    elif nome_disposizione == "ferro_di_cavallo":
-        posizioni = {0: (0.04, 0.05), 1: (0.17, 0.24), 2: (0.30, 0.40), 3: (0.44, 0.50),
-                     4: (0.58, 0.40), 5: (0.71, 0.24), 6: (0.84, 0.05)}
-        larghezza_carta, altezza_carta = 0.13, 0.24
-        figsize = (13, 7)
-    elif nome_disposizione == "relazionale":
-        posizioni = {0: (0.08, 0.55), 1: (0.68, 0.55), 2: (0.38, 0.55),
-                     3: (0.08, 0.15), 4: (0.68, 0.15), 5: (0.38, 0.15)}
-        figsize = (11, 9)
-    elif nome_disposizione == "ruota_anno":
-        larghezza_carta, altezza_carta = 0.075, 0.15
-        centro_x, centro_y, raggio = 0.5, 0.5, 0.37
-        n = len(disposizioni[nome_disposizione])
-        posizioni = {}
-        for i in range(n):
-            angolo = math.pi / 2 - i * (2 * math.pi / n)
-            posizioni[i] = (centro_x + raggio * math.cos(angolo) - larghezza_carta / 2,
-                             centro_y + raggio * math.sin(angolo) - altezza_carta / 2)
-        figsize = (12, 12)
-    elif nome_disposizione == "croce_celtica":
-        posizioni = {0: (0.32, 0.36), 2: (0.32, 0.04), 3: (0.12, 0.36), 4: (0.32, 0.68),
-                     5: (0.52, 0.36), 6: (0.80, 0.04), 7: (0.80, 0.28), 8: (0.80, 0.52), 9: (0.80, 0.76)}
-        figsize = (11, 8.5)
-        extra_overlay = {"indice_sovrapposto": 1, "indice_base": 0, "angolo": 90, "larghezza": 0.16, "altezza": 0.09}
-
-    return posizioni, larghezza_carta, altezza_carta, figsize, extra_overlay
-
-def disegna_stesa(nome_disposizione, carte):
-    etichette = disposizioni[nome_disposizione]
-    posizioni_grafiche, larghezza_carta, altezza_carta, figsize, extra_overlay = get_configurazione_layout(nome_disposizione)
-    fig = plt.figure(figsize=figsize, dpi=500)
-    for indice, etichetta in enumerate(etichette):
-        if indice not in posizioni_grafiche:
-            continue
-        x, y = posizioni_grafiche[indice]
-        ax = fig.add_axes([x, y, larghezza_carta, altezza_carta])
-        ax.axis("off")
-        if indice in carte:
-            nome_carta, orientamento = carte[indice]
-            img = carica_immagine_carta(nome_carta, orientamento)
-            if img is not None:
-                ax.imshow(img)
-            else:
-                ax.text(0.5, 0.5, "non disponibile", ha="center", va="center", fontsize=7, wrap=True)
-            ax.set_title(etichetta, fontsize=7)
-        else:
-            ax.set_facecolor("#eeeeee")
-            ax.text(0.5, 0.5, etichetta, ha="center", va="center", fontsize=7, wrap=True, color="#888888")
-    if extra_overlay and extra_overlay["indice_sovrapposto"] in carte:
-        nome_carta, orientamento = carte[extra_overlay["indice_sovrapposto"]]
+def mostra_posizione(etichetta, indice, carte):
+    if indice in carte:
+        nome_carta, orientamento = carte[indice]
         img = carica_immagine_carta(nome_carta, orientamento)
         if img is not None:
-            img_ruotata = img.rotate(extra_overlay["angolo"], expand=True)
-            x_centro, y_centro = posizioni_grafiche[extra_overlay["indice_base"]]
-            lw, lh = extra_overlay["larghezza"], extra_overlay["altezza"]
-            x_ov = x_centro + larghezza_carta / 2 - lw / 2
-            y_ov = y_centro + altezza_carta / 2 - lh / 2
-            ax_ov = fig.add_axes([x_ov, y_ov, lw, lh])
-            ax_ov.imshow(img_ruotata)
-            ax_ov.axis("off")
-    return fig
+            st.image(img, caption=etichetta, use_container_width=True)
+        else:
+            st.write(f"**{etichetta}**")
+            st.write("Immagine non ancora disponibile")
+    else:
+        st.markdown(
+            f"<div style='background:#eee;border-radius:10px;min-height:160px;"
+            f"display:flex;align-items:center;justify-content:center;color:#888;"
+            f"text-align:center;padding:10px;font-size:13px;'>{etichetta}</div>",
+            unsafe_allow_html=True,
+        )
 
-# --- stato persistente tra un click e l'altro (in Colab erano variabili normali, qui servono session_state) ---
+# --- Layout per ogni disposizione ---
+
+def render_riga(nome_disposizione, carte):
+    etichette = disposizioni[nome_disposizione]
+    colonne = st.columns(len(etichette))
+    for indice, (colonna, etichetta) in enumerate(zip(colonne, etichette)):
+        with colonna:
+            mostra_posizione(etichetta, indice, carte)
+
+def render_cinque_carte(carte):
+    etichette = disposizioni["cinque_carte"]
+    sopra = st.columns(3)
+    with sopra[1]:
+        mostra_posizione(etichette[1], 1, carte)
+    centro = st.columns(3)
+    with centro[0]:
+        mostra_posizione(etichette[2], 2, carte)
+    with centro[1]:
+        mostra_posizione(etichette[0], 0, carte)
+    with centro[2]:
+        mostra_posizione(etichette[3], 3, carte)
+    sotto = st.columns(3)
+    with sotto[1]:
+        mostra_posizione(etichette[4], 4, carte)
+
+def render_ferro_di_cavallo(carte):
+    etichette = disposizioni["ferro_di_cavallo"]
+    offset_px = [70, 40, 15, 0, 15, 40, 70]
+    colonne = st.columns(7)
+    for indice, (colonna, etichetta) in enumerate(zip(colonne, etichette)):
+        with colonna:
+            st.markdown(f"<div style='height:{offset_px[indice]}px'></div>", unsafe_allow_html=True)
+            mostra_posizione(etichetta, indice, carte)
+
+def render_relazionale(carte):
+    etichette = disposizioni["relazionale"]
+    riga1 = st.columns(3)
+    for colonna, indice in zip(riga1, [0, 2, 1]):
+        with colonna:
+            mostra_posizione(etichette[indice], indice, carte)
+    riga2 = st.columns(3)
+    for colonna, indice in zip(riga2, [3, 5, 4]):
+        with colonna:
+            mostra_posizione(etichette[indice], indice, carte)
+
+def render_croce_celtica(carte):
+    etichette = disposizioni["croce_celtica"]
+    area_croce, area_bastone = st.columns([3, 1])
+    with area_croce:
+        sopra = st.columns(3)
+        with sopra[1]:
+            mostra_posizione(etichette[4], 4, carte)
+        centro = st.columns(3)
+        with centro[0]:
+            mostra_posizione(etichette[3], 3, carte)
+        with centro[1]:
+            mostra_posizione(etichette[0], 0, carte)
+            mostra_posizione(etichette[1], 1, carte)
+        with centro[2]:
+            mostra_posizione(etichette[5], 5, carte)
+        sotto = st.columns(3)
+        with sotto[1]:
+            mostra_posizione(etichette[2], 2, carte)
+    with area_bastone:
+        for indice in [9, 8, 7, 6]:
+            mostra_posizione(etichette[indice], indice, carte)
+
+def render_ruota_anno(carte):
+    etichette = disposizioni["ruota_anno"]
+    for inizio_riga in range(0, 12, 4):
+        colonne = st.columns(4)
+        for offset, colonna in enumerate(colonne):
+            indice = inizio_riga + offset
+            with colonna:
+                mostra_posizione(etichette[indice], indice, carte)
+
+def render_stesa(nome_disposizione, carte):
+    if nome_disposizione in ("singola", "si_no", "tre_carte"):
+        render_riga(nome_disposizione, carte)
+    elif nome_disposizione == "cinque_carte":
+        render_cinque_carte(carte)
+    elif nome_disposizione == "ferro_di_cavallo":
+        render_ferro_di_cavallo(carte)
+    elif nome_disposizione == "relazionale":
+        render_relazionale(carte)
+    elif nome_disposizione == "croce_celtica":
+        render_croce_celtica(carte)
+    elif nome_disposizione == "ruota_anno":
+        render_ruota_anno(carte)
+
+# --- Stato persistente ---
+
 if "carte" not in st.session_state:
     st.session_state.carte = {}
 if "carte_pescate" not in st.session_state:
@@ -169,8 +197,7 @@ if st.session_state.disposizione_corrente:
         st.session_state.carte_pescate.append(nome_carta)
         st.session_state.carte[indice_corrente] = (nome_carta, orientamento)
 
-    fig = disegna_stesa(nome_disposizione, st.session_state.carte)
-    st.pyplot(fig)
+    render_stesa(nome_disposizione, st.session_state.carte)
 
     if completa:
         st.success("Stesa completa!")
