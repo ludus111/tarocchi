@@ -216,14 +216,14 @@ def mostra_zoom(nome_disposizione, carte):
     if nome_carta in link_interpretazione:
         st.link_button("📖 Leggi il significato", link_interpretazione[nome_carta])
     
-    colonna_prec, colonna_succ = st.columns(2)
+     colonna_prec, colonna_succ = st.columns(2)
     with colonna_prec:
         if posizione_corrente > 0:
-            if st.button("◀ Precedente", use_container_width=True, key="zoom_precedente"):
+            if st.button("◀ Precedente", use_container_width=True, key="zoom_precedente", shortcut="Left"):
                 st.session_state.indice_zoom = indici_pescati[posizione_corrente - 1]
     with colonna_succ:
         if posizione_corrente < len(indici_pescati) - 1:
-            if st.button("Successiva ▶", use_container_width=True, key="zoom_successiva"):
+            if st.button("Successiva ▶", use_container_width=True, key="zoom_successiva", shortcut="Right"):
                 st.session_state.indice_zoom = indici_pescati[posizione_corrente + 1]
 
 if "carte" not in st.session_state:
